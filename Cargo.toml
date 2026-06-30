@@ -1,0 +1,10 @@
+[package]
+name = "uvc_rtsp_forwarder"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gst = { package = "gstreamer", version = "0.22" }
+gst-rtsp-server = { package = "gstreamer-rtsp-server", version = "0.22" }
+glib = "0.19"
+tokio = { version = "1", features = ["full"] }
