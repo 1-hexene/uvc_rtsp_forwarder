@@ -2,6 +2,9 @@ name: Build and cross-compile
 
 on:
   push:
+    branches: [ "main", "master" ]
+    tags:
+      - 'v*'
   pull_request:
   workflow_dispatch:
 
@@ -20,7 +23,7 @@ jobs:
       - name: Install ARMv7 Cross-Compiler and Dependencies
         run: |
           sudo dpkg --add-architecture armhf
-
+          
           sudo sed -i 's/Types: deb/Types: deb\nArchitectures: amd64/' /etc/apt/sources.list.d/ubuntu.sources
           
           sudo tee /etc/apt/sources.list.d/ubuntu-ports.sources <<EOF
@@ -33,9 +36,8 @@ jobs:
           EOF
 
           sudo apt-get update
-
           sudo apt-get install -y libsqlite3-0:armhf libsqlite3-0:amd64
-
+          
           sudo apt-get install -y gcc-arm-linux-gnueabihf pkg-config
           sudo apt-get install -y \
               libgstreamer1.0-dev:armhf \
@@ -52,9 +54,23 @@ jobs:
       - name: Build for armv7-unknown-linux-gnueabihf
         run: |
           export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-          
           export PKG_CONFIG_ALLOW_CROSS=1
           export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig:/usr/share/pkgconfig
           export PKG_CONFIG_SYSROOT_DIR=/
-          
           cargo build --release --target armv7-unknown-linux-gnueabihf
+
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: uvc_rtsp_forwarder-armv7
+          path: target/armv7-unknown-linux-gnueabihf/release/uvc_rtsp_forwarder 
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/armv7-unknown-linux-gnueabihf/release/uvc_rtsp_forwarder
+          generate_release_notes: true 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
