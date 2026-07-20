@@ -1,0 +1,31 @@
+name: Build and cross-compile
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-firmware:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm
+
+      - name: Install Toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential curl zip unzip
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          . "$HOME/.cargo/env"
+          cargo install cross
+
+      - name: Build for armv7-unknown-linux-gnueabihf
+        run: |
+          . "$HOME/.cargo/env"
+          cross build --release --target armv7-unknown-linux-gnueabihf
