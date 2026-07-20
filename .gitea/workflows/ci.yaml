@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-firmware:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -15,8 +15,8 @@ jobs:
       - name: Install Toolchain
         run: |
           apt update
-          apt install -y build-essential curl zip unzip podman
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y
+          apt install -y build-essential curl zip unzip podman podman-docker
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           . "$HOME/.cargo/env"
           cargo install cross
       
