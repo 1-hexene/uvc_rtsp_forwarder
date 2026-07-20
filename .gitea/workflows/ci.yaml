@@ -12,15 +12,15 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Install Toolchain
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: armv7-unknown-linux-gnueabihf
+
+      - name: Install Cross
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential curl zip unzip
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          . "$HOME/.cargo/env"
-          cargo install cross
+          curl -L--proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          cargo binstall cross --no-confirm
 
       - name: Build for armv7-unknown-linux-gnueabihf
-        run: |
-          . "$HOME/.cargo/env"
-          cross build --release --target armv7-unknown-linux-gnueabihf
+        run: cross build --release --target armv7-unknown-linux-gnueabihf
