@@ -19,11 +19,28 @@ jobs:
 
       - name: Install ARMv7 Cross-Compiler and Dependencies
         run: |
+          # 1. 开启 32 位 armhf 架构支持
           sudo dpkg --add-architecture armhf
+
+          # 2. 为 Ubuntu 24.04 (Noble) 配置 armhf 的 ports 源
+          # 限制默认源只负责 amd64
+          sudo sed -i 's/Types: deb/Types: deb\nArchitectures: amd64/' /etc/apt/sources.list.d/ubuntu.sources
+          
+          # 写入专用的 armhf 源指向 ports.ubuntu.com
+          sudo tee /etc/apt/sources.list.d/ubuntu-ports.sources <<EOF
+          Types: deb
+          Architectures: armhf
+          URIs: http://ports.ubuntu.com/ubuntu-ports/
+          Suites: noble noble-updates noble-backports
+          Components: main restricted universe multiverse
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
+
+          # 3. 更新源列表
           sudo apt-get update
 
+          # 4. 安装交叉编译器、pkg-config 及你的依赖库
           sudo apt-get install -y gcc-arm-linux-gnueabihf pkg-config
-
           sudo apt-get install -y \
               libgstreamer1.0-dev:armhf \
               libgstreamer-plugins-base1.0-dev:armhf \
