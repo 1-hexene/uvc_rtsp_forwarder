@@ -15,7 +15,7 @@ jobs:
       - name: Install Toolchain
         run: |
           apt update
-          apt install -y build-essential curl zip unzip podman podman-docker
+          apt install -y build-essential curl zip unzip
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           . "$HOME/.cargo/env"
           cargo install cross
