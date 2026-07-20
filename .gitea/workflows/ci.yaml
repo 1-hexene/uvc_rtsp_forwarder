@@ -22,4 +22,5 @@ jobs:
       
       - name: Build for armv7-unknown-linux-gnueabihf
         run: |
+          . "$HOME/.cargo/env"
           cross build --release --target armv7-unknown-linux-gnueabihf
