@@ -34,7 +34,7 @@ jobs:
           cross build --release --target armv7-unknown-linux-gnueabihf
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: uvc_rtsp_forwarder-armv7
           path: target/armv7-unknown-linux-gnueabihf/release/uvc_rtsp_forwarder 
