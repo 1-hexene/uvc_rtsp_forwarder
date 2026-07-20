@@ -12,6 +12,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm
+
       - name: Install Toolchain
         run: |
           apt update
@@ -19,11 +24,6 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           . "$HOME/.cargo/env"
           cargo install cross
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm
 
       - name: Build for armv7-unknown-linux-gnueabihf
         run: |
