@@ -15,68 +15,26 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v7
       
-      - name: Free up disk space
-        uses: jlumbroso/free-disk-space@main
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
         with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
+          platforms: arm
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: armv7-unknown-linux-gnueabihf
-
-      - name: Install ARMv7 Cross-Compiler and Dependencies
+      - name: Install Toolchain
         run: |
-          sudo dpkg --add-architecture armhf
-          
-          sudo sed -i 's/Types: deb/Types: deb\nArchitectures: amd64/' /etc/apt/sources.list.d/ubuntu.sources
-          
-          sudo tee /etc/apt/sources.list.d/ubuntu-ports.sources <<EOF
-          Types: deb
-          Architectures: armhf
-          URIs: http://ports.ubuntu.com/ubuntu-ports/
-          Suites: noble noble-updates noble-backports noble-security
-          Components: main restricted universe multiverse
-          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
-          EOF
-
-          sudo apt-get update
-          
-          sudo apt-get install -y libsqlite3-0:armhf libsqlite3-0:amd64 libglib2.0-0t64:armhf libglib2.0-0:amd64
-          
-          sudo apt-get install -y gcc-arm-linux-gnueabihf pkg-config
-          
-          sudo apt-get install -y \
-              libglib2.0-dev-bin:amd64 \
-              libglib2.0-dev-bin-linux:amd64 \
-              libglib2.0-dev:armhf \
-              libgstreamer1.0-dev:armhf \
-              libgstreamer-plugins-base1.0-dev:armhf \
-              libgstreamer-plugins-good1.0-dev:armhf \
-              libgstrtspserver-1.0-dev:armhf \
-              gstreamer1.0-plugins-base:armhf \
-              gstreamer1.0-plugins-good:armhf \
-              gstreamer1.0-plugins-bad:armhf \
-              gstreamer1.0-plugins-ugly:armhf \
-              gstreamer1.0-tools:armhf
+          apt update
+          apt install -y build-essential curl zip unzip
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          . "$HOME/.cargo/env"
+          cargo install cross
 
       - name: Build for armv7-unknown-linux-gnueabihf
         run: |
-          export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-          export PKG_CONFIG_ALLOW_CROSS=1
-          export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig:/usr/share/pkgconfig
-          export PKG_CONFIG_SYSROOT_DIR=/
-          cargo build --release --target armv7-unknown-linux-gnueabihf
-
+          . "$HOME/.cargo/env"
+          cross build --release --target armv7-unknown-linux-gnueabihf
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: uvc_rtsp_forwarder-armv7
           path: target/armv7-unknown-linux-gnueabihf/release/uvc_rtsp_forwarder 
