@@ -15,8 +15,8 @@ jobs:
       - name: Install Toolchain
         run: |
           apt update
-          apt install -y build-essential curl zip unzip
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          apt install -y build-essential curl zip unzip podman
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y
           . "$HOME/.cargo/env"
           cargo install cross
       
