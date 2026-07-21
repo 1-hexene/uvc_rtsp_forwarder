@@ -11,6 +11,9 @@ on:
 jobs:
   build-firmware:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v7
